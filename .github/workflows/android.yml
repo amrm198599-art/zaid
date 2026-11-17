@@ -1,0 +1,47 @@
+name: Build APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Unzip project
+        run: |
+          mkdir -p extracted
+          for z in *.zip; do
+            if [ -f "$z" ]; then
+              unzip -o -q "$z" -d extracted
+            fi
+          done
+          find . -name settings.gradle.kts -not -path './.git/*'
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.9"
+
+      - name: Build debug APK
+        run: |
+          S=$(find extracted . -name settings.gradle.kts -not -path './.git/*' | head -1)
+          echo "Project: $S"
+          cd "$(dirname "$S")"
+          gradle assembleDebug --stacktrace
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: QuranListening-apk
+          path: "**/build/outputs/apk/debug/*.apk"
+          if-no-files-f
