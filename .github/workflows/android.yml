@@ -22,7 +22,6 @@ jobs:
               unzip -o -q "$z" -d extracted
             fi
           done
-          find . -name settings.gradle.kts -not -path './.git/*'
 
       - uses: actions/setup-java@v4
         with:
@@ -44,4 +43,3 @@ jobs:
         with:
           name: QuranListening-apk
           path: "**/build/outputs/apk/debug/*.apk"
-          if-no-files-f
